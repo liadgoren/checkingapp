@@ -1,0 +1,2 @@
+appPort=6000
+searchPatterns=password;secret;eval(;exec(;pickle.load;eval;subprocess.run(
