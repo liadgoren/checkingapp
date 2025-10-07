@@ -25,24 +25,24 @@ jobs:
       - name: Build Docker image
         run: docker build -t myapp:latest .
 
-      # 4. Trivy — print MEDIUM+ to console (do NOT fail)
+            # 4. Trivy — print MEDIUM+ vulnerabilities to console (do NOT fail)
       - name: Trivy scan (console MEDIUM+)
         uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: myapp:latest
           format: table
-          exit-code: 0
+          exit-code: 0                # don't fail here
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'MEDIUM,HIGH,CRITICAL'
 
-      # 5. Trivy — enforce policy (fail only on CRITICAL)
+      # 5. Trivy — enforce policy (fail only if CRITICAL found)
       - name: Trivy policy (fail on CRITICAL)
         uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: myapp:latest
           format: table
-          exit-code: 1
+          exit-code: 1                # fail job if CRITICAL found
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL'
