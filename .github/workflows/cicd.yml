@@ -47,6 +47,7 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL'
 
+
       # 6. Log in to Docker Hub (only after scans passed)
       - name: Log in to Docker Hub
         if: success()
