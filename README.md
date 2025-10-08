@@ -6,9 +6,11 @@ Python Flask microservice that exposes two endpoints:
 - `POST /scan/code` – clones a repo and searches for dangerous patterns loaded from `config.txt`
   (e.g., `eval`, `exec`, `pickle.load`).
 
-The service is containerized with Docker.  
-CI/CD is implemented with **GitHub Actions** and **Trivy** to scan the image for **vulnerabilities** before pushing to Docker Hub.
-
+The service is containerized with **Docker** and continuously integrated using **GitHub Actions**.  
+Each build performs:
+- **Unit tests** (Pytest)
+- **Security scanning** with **Trivy**
+- **Automated Docker image build and push** to Docker Hub (only if all tests pass)
 ---
 
 ## Endpoints
