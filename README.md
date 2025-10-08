@@ -19,6 +19,7 @@ CI/CD is implemented with **GitHub Actions** and **Trivy** to scan the image for
 { "url": "https://github.com/owner/repo.git" }
 
 Response(Examples):
+
 When Gitleaks returns JSON:
 ```json
 {
