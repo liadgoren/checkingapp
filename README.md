@@ -65,28 +65,30 @@ Response:
   ]
 }
 
-#How to Run it ?#
-Run locally:
+### How to Run it?
+
+#### Run locally
+```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-
+```
 # start the API
 python scanApi.py
-# the service runs on http://127.0.0.1:6000 (unless overridden by config.txt)
+# The service runs on http://127.0.0.1:6000 (unless overridden by config.txt)
 
-Run with curl:
-
+# Run with curl
+# Scan for secrets
 curl -s -X POST http://127.0.0.1:6000/scan/secrets \
   -H "Content-Type: application/json" \
   -d '{"url":"https://github.com/owner/repo.git"}' | jq
 
+# Scan for code issues
 curl -s -X POST http://127.0.0.1:6000/scan/code \
   -H "Content-Type: application/json" \
   -d '{"url":"https://github.com/owner/repo.git"}' | jq
 
-
-Run with Docker
+# Run with Docker
 docker build -t checkingapp:dev .
 docker run --rm -p 6000:6000 checkingapp:dev
 
@@ -94,4 +96,5 @@ Unit tests:
 pip install pytest
 pytest -v
 
-
+Notes:
+Tests use Flask’s test_client and unittest.mock.patch to stub git clone and gitleaks, so no external tools are needed during tests.
