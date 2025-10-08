@@ -59,7 +59,7 @@ def scan_secrets():
     data = request.get_json()
     if not data or "url" not in data:
         return jsonify({"error": "Missing 'url' field"}), 400
-    
+
     repo_url = data["url"]
     temp_dir = tempfile.mkdtemp()
 
@@ -75,22 +75,66 @@ def scan_secrets():
                 text=True,
                 check=False
             )
-            findings = result.stderr.strip()
-            findings = re.sub(r'\x1b\[[0-9;]*m', '', findings)
-            findings = findings.encode('ascii', errors='ignore').decode()
-            findings = findings.encode("ascii", errors="ignore").decode()
-            findings_json = []
-            if findings:
+
+            # gitleaks typically returns JSON in stdout; logs may appear in stderr
+            out = (result.stdout or "").strip()
+            err = (result.stderr or "").strip()
+
+            # strip ANSI color codes if any
+            ansi_re = r'\x1b\[[0-9;]*m'
+            clean_out = re.sub(ansi_re, '', out)
+            clean_err = re.sub(ansi_re, '', err)
+
+            # 1) Prefer structured JSON from stdout
+            try:
+                parsed = json.loads(clean_out) if clean_out else []
+                if isinstance(parsed, list):
+                    summary = {
+                        "leaks_found": len(parsed) > 0,
+                        "total_findings": len(parsed)
+                    }
+                    return jsonify({
+                        "repository": repo_url,
+                        "scan_type": "secrets",
+                        "status": "completed",
+                        "summary": summary,
+                        "findings": parsed  # raw findings list from gitleaks
+                    }), 200
+            except Exception:
+                pass
+
+            # 2) If no valid JSON, format log text (stderr/stdout) into a readable summary
+            text = clean_err or clean_out
+            summary = {
+                "leaks_found": None,
+                "commits_scanned": None,
+                "data_scanned_kb": None,
+                "message": text.strip() if text else ""
+            }
+
+            low = (text or "").lower()
+            if "no leaks found" in low:
+                summary["leaks_found"] = False
+            elif "leaks found" in low:
+                summary["leaks_found"] = True
+
+            m_commits = re.search(r'(\d+)\s+commits\s+scanned', text or "")
+            if m_commits:
+                summary["commits_scanned"] = int(m_commits.group(1))
+
+            m_size = re.search(r'scanned\s+~[\d.]+\s+bytes\s+\(([\d.]+)\s*kb\)', text or "", re.IGNORECASE)
+            if m_size:
                 try:
-                    findings_json = json.loads(findings)
-                except Exception:
-                    findings_json = findings
+                    summary["data_scanned_kb"] = float(m_size.group(1))
+                except ValueError:
+                    pass
 
             return jsonify({
                 "repository": repo_url,
                 "scan_type": "secrets",
                 "status": "completed",
-                "findings": findings_json
+                "summary": summary,
+                "findings": []  # no structured JSON; return empty list with readable summary
             }), 200
 
         except FileNotFoundError:
@@ -105,7 +149,7 @@ def scan_code():
     data = request.get_json()
     if not data or "url" not in data:
         return jsonify({"error": "Missing 'url' field"}), 400
-    
+
     repo_url = data["url"]
     temp_dir = tempfile.mkdtemp()
     repotStatus = "Valid!"
