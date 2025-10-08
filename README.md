@@ -20,14 +20,17 @@ CI/CD is implemented with **GitHub Actions** and **Trivy** to scan the image for
 
 Response(Examples):
 When Gitleaks returns JSON:
+```json
 {
   "repository": "...",
   "scan_type": "secrets",
   "status": "completed",
   "summary": { "leaks_found": false, "total_findings": 0 },
-  "findings": []
+  "findings": [] 
 }
+```
 When only logs are available:
+```json
 {
   "repository": "...",
   "scan_type": "secrets",
@@ -40,8 +43,9 @@ When only logs are available:
   },
   "findings": []
 }
+```
 
-### 1) `POST /scan/code`
+### 2) `POST /scan/code`
 
 config.txt example:
 appPort=6000
@@ -79,22 +83,31 @@ python scanApi.py
 
 # Run with curl
 # Scan for secrets
+```bash
 curl -s -X POST http://127.0.0.1:6000/scan/secrets \
   -H "Content-Type: application/json" \
   -d '{"url":"https://github.com/owner/repo.git"}' | jq
+```
 
 # Scan for code issues
+```bash
 curl -s -X POST http://127.0.0.1:6000/scan/code \
   -H "Content-Type: application/json" \
   -d '{"url":"https://github.com/owner/repo.git"}' | jq
+  ```
 
 # Run with Docker
+```bash
 docker build -t checkingapp:dev .
 docker run --rm -p 6000:6000 checkingapp:dev
+```
 
-Unit tests:
+#### Unit tests
+To run tests locally:
+```bash
 pip install pytest
 pytest -v
+```
 
 Notes:
 Tests use Flask’s test_client and unittest.mock.patch to stub git clone and gitleaks, so no external tools are needed during tests.
