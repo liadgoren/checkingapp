@@ -83,18 +83,19 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 # start the API
+```bash
 python scanApi.py
+```
 # The service runs on http://127.0.0.1:6000 (unless overridden by config.txt)
 
-# Run with curl
-# Scan for secrets
+# Run with curl Scan for secrets
 ```bash
 curl -s -X POST http://127.0.0.1:6000/scan/secrets \
   -H "Content-Type: application/json" \
   -d '{"url":"https://github.com/owner/repo.git"}' | jq
 ```
 
-# Scan for code issues
+# Run with curl Scan for code issues
 ```bash
 curl -s -X POST http://127.0.0.1:6000/scan/code \
   -H "Content-Type: application/json" \
