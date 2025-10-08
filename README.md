@@ -58,6 +58,7 @@ Repo to check(Example):
 { "url": "https://github.com/owner/repo.git" }
 
 Response:
+```json
 {
   "repository": "...",
   "scan_type": "code",
@@ -71,6 +72,7 @@ Response:
     }
   ]
 }
+```
 
 ### How to Run it?
 
